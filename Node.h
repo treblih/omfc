@@ -6,7 +6,7 @@
  *    Description:  
  *
  *        Version:  1.0
- *        Created:  08.04.10 10:34
+ *        Created:  12.04.10 13:10
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -20,21 +20,21 @@
 #define		NODE_H
 
 #include	 <omfc/omfc.h>
+#include         <omfc/Node_abc.h>                          /* derive from Node */
 
 #ifndef		T
 #define	 	T		int
 #endif
 
 $extend(Node,
-	Class,
+	Node_abc,
 	public,
-	,
+	,                                               /* essential ',' */
 	private,
-	T x;
 	OBJ link;
 	);
 
 #define         $Node_interface                         \
-                $Class_interface                        
+                $Node_abc_interface                     /* no ';' */
 
 #endif

@@ -18,12 +18,5 @@
 
 #include	<omfc/Bnode.h>
 
-static OBJ init(void);
-
-static OBJ init()
-{
-	/* essential '0', should let ginit_class() know there's no pair to change */
-	$call_ginit_class(Bnode, Node_abc, 0);
-}
-
-OBJ Bnode = (OBJ) init;
+/* essential '0', should let ginit_class() know there's no pair to change */
+$call_ginit_class(Bnode, Node_abc, 0);

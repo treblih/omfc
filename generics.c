@@ -85,7 +85,13 @@ OBJ ginit(OBJ _obj, va_list * _arg)
 void gdelete(OBJ _obj)
 {
 	if (_obj) {
-		$pri(Class) * obj = (PTR) _obj;
+		
+		/*-----------------------------------------------------------------------------
+		 *  can't be $pri(Class)
+		 *  private_Class_interface has no component, for the room of next generation
+		 *  so have to use private_Cla
+		 *-----------------------------------------------------------------------------*/
+		$private(Class) * obj = (PTR) _obj;
 		$do(obj, dtor);
 		free(_obj);
 	}
@@ -172,7 +178,7 @@ void ginit_class(OBJ _sub, OBJ _spr, size_t _copy_len, size_t _private_len, int 
 	FUNC * ptr;
 
 	/*-----------------------------------------------------------------------------
-	 *  new func addr overlay the copied 
+	 *  new func addr overlay the copied, or init the new one to the class
 	 *-----------------------------------------------------------------------------*/
 	for (int i = 0; i < _pair; i += 1) {
 		offset = va_arg(ap, off_t);

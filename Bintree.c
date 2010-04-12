@@ -26,7 +26,6 @@ $dclmethod(void, add, $arg(T));
 $dclmethod(OBJ, del, $arg(T));
 
 static void post_order(OBJ, HANDLER);
-static OBJ init(void);
 
 /*
  *--------------------------------------------------------------------------------------
@@ -208,14 +207,9 @@ static void post_order(OBJ _me, HANDLER do_what)
 	}
 }
 
-static OBJ init()
-{
-	$call_ginit_class(Bintree, Class, 5,
-			 $set(Bintree, ctor),
-			 $set(Bintree, dtor),
-			 $set(Bintree, search),
-			 $set(Bintree, add),
-			 $set(Bintree, del));
-}
-
-OBJ Bintree = (OBJ) init;                               /* global indicator */
+$call_ginit_class(Bintree, Class, 5,
+		 $set(Bintree, ctor),
+		 $set(Bintree, dtor),
+		 $set(Bintree, search),
+		 $set(Bintree, add),
+		 $set(Bintree, del));

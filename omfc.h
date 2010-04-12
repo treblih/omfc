@@ -171,17 +171,29 @@ extern OBJ sub
 #define         $set(cls, func)                         \
 		offsetof(struct cls, func), func
 
+
 /*-----------------------------------------------------------------------------
  *  in the end of every .c for less keystroke and clarify the source
  *-----------------------------------------------------------------------------*/
 #define         $call_ginit_class(sub, spr, ...)        \
-/* sub is global indicator of respective classes. change from init() pointer */ \
-sub = malloc(sizeof(struct sub));                       \
-/* modify sub -> region, i.e. the class' descriptor */  \
-ginit_class(sub, spr, sizeof(struct spr), sizeof($private(sub)), __VA_ARGS__); \
-/* return the addr, just a copy */                      \
-return (OBJ) sub                                        /* no ';' */
+static OBJ init ()                                      \
+{                                                       \
+	/* sub is global indicator of respective classes.
+	 * change from init() pointer */ 		\
+        sub = malloc(sizeof(struct sub));               \
+	/* modify sub -> region, i.e. the class' descriptor */ \
+	ginit_class(sub, spr, sizeof(struct spr), sizeof($private(sub)), __VA_ARGS__); \
+	/* return the addr, just a copy */              \
+	return (OBJ) sub;                               \
+}                                                       \
+OBJ sub = (OBJ) init      
 
+
+#define		$getter(ret, elem, class)               \
+$dclmethod(ret, getter_##elem);                         \
+$defmethod(ret, getter_##elem, class)                   \
+        return (ret) me->elem;                          \
+}
 
 extern PTR gheap;
 

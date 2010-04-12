@@ -20,7 +20,7 @@
 #define		STACK_H
 
 #include	<omfc/omfc.h>
-#include        <omfc/Node_abc.h>                       /* use Node_abc */
+#include        <omfc/Node.h>                       /* use Node_abc */
 
 $extend(Stack,
 	Class,

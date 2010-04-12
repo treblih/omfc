@@ -22,7 +22,6 @@
 $dclmethod(OBJ, ctor, $arg(va_list *));
 $dclmethod(void, dtor);
 $dclmethod(int, put, $arg($pri(String) *, ...));
-static OBJ init(void);
 
 
 /*
@@ -49,9 +48,9 @@ $defmethod(OBJ, ctor, Stream, $arg(va_list * arg))
  */
 $defmethod(void, dtor, Stream)
 	printf("a Stream dead\n");
-	if (me->stm) {
-		fclose(me->stm);
-	}
+//	if (me->stm) {
+//		fclose(me->stm);
+//	}
 }
 
 /*
@@ -70,12 +69,7 @@ $defmethod(int, put, Stream, $arg($pri(String) * format, ...))
 	return n;
 }
 
-static OBJ init()
-{
-	$call_ginit_class(Stream, Class, 3, 
-			 $set(Stream, ctor),
-			 $set(Stream, dtor),
-			 $set(Stream, put));
-}
-
-OBJ Stream = (OBJ) init;
+$call_ginit_class(Stream, Class, 3, 
+		 $set(Stream, ctor),
+		 $set(Stream, dtor),
+		 $set(Stream, put));

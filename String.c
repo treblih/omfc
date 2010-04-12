@@ -18,11 +18,20 @@
 
 #include	<omfc/String.h>
 
+
 $dclmethod(OBJ, ctor, $arg(va_list *));
 $dclmethod(void, dtor);
 $dclmethod(STR, getter_str);
-static OBJ init(void);
 
+
+/*
+ *--------------------------------------------------------------------------------------
+ *      Method:  getter_str
+ *   Parameter:  
+ * Description:  return the addr, in heap, by strndup
+ *--------------------------------------------------------------------------------------
+ */
+$getter(STR, str, String)
 
 /*
  *--------------------------------------------------------------------------------------
@@ -43,23 +52,7 @@ $defmethod(void, dtor, String)
 	printf("a String dead\n");
 }
 
-/*
- *--------------------------------------------------------------------------------------
- *      Method:  getter_str
- *   Parameter:  
- * Description:  return the addr, in heap, by strndup
- *--------------------------------------------------------------------------------------
- */
-$defmethod(STR, getter_str, String)
-	return me->str;
-}
-
-static OBJ init()
-{
-	$call_ginit_class(String, Class, 3, 
-			 $set(String, ctor),
-			 $set(String, dtor),
-			 $set(String, getter_str));
-}
-
-OBJ String = (OBJ) init;
+$call_ginit_class(String, Class, 3, 
+		 $set(String, ctor),
+		 $set(String, dtor),
+		 $set(String, getter_str));

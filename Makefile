@@ -19,23 +19,29 @@
 CC	:=	gcc
 CFLAGS	:=	-Wall -std=gnu99 -g
 
-BASE	:=	Class.c  Nil.c  generics.c test.c Bnode.c Node_abc.c
+BASE	:=	Class.c  Nil.c  generics.c
 
 
-STACK	:=	bintree
+STACK	:=	stack
+STREAM	:=	stream
 POINT	:=	Point
 
-.PHONY:	stack point clean
+.PHONY:	stack point clean stream bitvec
 
 stack:	clean_stack $(STACK) 
+stack:	clean_stream $(STREAM) 
 point:	clean_point $(POINT) 
 	
-$(STACK): 	Bintree.c
+$(STACK): 	stack.c
 	$(CC) $(CFLAGS) -o $@ $< $(BASE)
+$(STREAM): 	stream.c
+	$(CC) $(CFLAGS) -o $@ $< $(BASE) Stack.c String.c Stream.c Node_abc.c Node.c
 $(POINT):	Point.c
 	$(CC) $(CFLAGS) -o $@ $< $(BASE)
 
 clean_stack:
-	rem bintree
+	rem stack
+clean_stream:
+	rem stream
 clean_point:
 	rem Point

@@ -23,8 +23,6 @@ $dclmethod(void, dtor);
 $dclmethod(void, push, $arg(T));
 $dclmethod(T, pop);
 
-static OBJ init(void);
-
 
 /*
  *--------------------------------------------------------------------------------------
@@ -59,7 +57,7 @@ $defmethod(void, dtor, Stack)
  *--------------------------------------------------------------------------------------
  */
 $defmethod(void, push, Stack, $arg(T x))
-	$private(Node) * obj = ($private(Node) *) gnew(Node, x);
+	$private(Node) * obj = (PTR) gnew(Node, x);
         obj->link = me->head;                           /* stack_n.link */
         me->head = (OBJ) obj;                           /* stack.head */
         me->cnt++;                                      /* stack.cnt */
@@ -73,21 +71,16 @@ $defmethod(void, push, Stack, $arg(T x))
  *--------------------------------------------------------------------------------------
  */
 $defmethod(T, pop, Stack)
-	$private(Node) * obj = ($private(Node) *) me->head;
-	T x = obj->x;
-	me->head = obj->link;                          /* stack.head */
-	me->cnt--;                                            /* stack.cnt */
-	gdelete((OBJ)obj);
+	$private(Node) * obj = (PTR) me->head;
+	T x = $do(obj, getter_x);
+        me->head = obj->link;                           /* stack.head */
+        me->cnt--;                                      /* stack.cnt */
+	gdelete((OBJ)obj);                              /* release the node */
 	return x;
 }
 
-static OBJ init()
-{
-	$call_ginit_class(Stack, Class, 4, 
-			 $set(Stack, ctor),
-			 $set(Stack, dtor),
-			 $set(Stack, push),
-			 $set(Stack, pop));
-}
-
-OBJ Stack = (OBJ) init;
+$call_ginit_class(Stack, Class, 4, 
+		 $set(Stack, ctor),
+		 $set(Stack, dtor),
+		 $set(Stack, push),
+		 $set(Stack, pop));

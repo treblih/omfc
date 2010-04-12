@@ -25,7 +25,15 @@ $dclmethod(void, dtor);
 $dclmethod(void, set, $arg(u32));
 $dclmethod(void, unset, $arg(u32));
 
-static OBJ init(void);
+
+/*
+ *--------------------------------------------------------------------------------------
+ *      Method:  getter_bitvec
+ *   Parameter:  
+ * Description:  get the addr of the bit vector
+ *--------------------------------------------------------------------------------------
+ */
+$getter(PTR, bitvec, Bitvec);
 
 /*
  *--------------------------------------------------------------------------------------
@@ -76,25 +84,9 @@ $defmethod(void, unset, Bitvec, $arg(u32 index))
 	*ptr &= (0 << BIT_OFFSET(index));
 }
 
-/*
- *--------------------------------------------------------------------------------------
- *      Method:  getter_bitvec
- *   Parameter:  
- * Description:  get the addr of the bit vector
- *--------------------------------------------------------------------------------------
- */
-$defmethod(PTR, getter_bitvec, Bitvec)
-	return (PTR) me->bitvec;
-}
-
-static OBJ init()
-{
-	$call_ginit_class(Bitvec, Class, 5,
-			 $set(Bitvec, ctor),
-			 $set(Bitvec, dtor),
-			 $set(Bitvec, set),
-			 $set(Bitvec, unset),
-			 $set(Bitvec, getter_bitvec));
-}
-
-OBJ Bitvec = (OBJ) init;                                /* global indicator */
+$call_ginit_class(Bitvec, Class, 5,
+		 $set(Bitvec, ctor),
+		 $set(Bitvec, dtor),
+		 $set(Bitvec, set),
+		 $set(Bitvec, unset),
+		 $set(Bitvec, getter_bitvec));

@@ -28,13 +28,15 @@
 $extend(Node_abc,
 	Class,
 	public,
-	int (* comp)();,
+	int (* comp)();
+	T (* getter_x)();,
 	private,
 	T x;
 	);
 
 #define         $Node_abc_interface                     \
                 $Class_interface;                       \
-		int (* comp)()
+                int (* comp)();                         \
+		T (* getter_x)()
 
 #endif

@@ -23,8 +23,15 @@ $dclmethod(OBJ, ctor, $arg(va_list *));
 $dclmethod(void, dtor);
 $dclmethod(int, comp, $arg(OBJ));
 
-static OBJ init(void);
 
+/*
+ *--------------------------------------------------------------------------------------
+ *      Method:  getter_x
+ *   Parameter:  
+ * Description:  return the value of component X
+ *--------------------------------------------------------------------------------------
+ */
+$getter(T, x, Node_abc);                                   /* whatever ';' */
 
 /*
  *--------------------------------------------------------------------------------------
@@ -74,12 +81,8 @@ $defmethod(int, comp, Node_abc, $arg(OBJ b))
 	}
 }
 
-static OBJ init()
-{
-	$call_ginit_class(Node_abc, Class, 3,
-			 $set(Node_abc, ctor),
-			 $set(Node_abc, dtor),
-			 $set(Node_abc, comp));
-}
-
-OBJ Node_abc = (OBJ) init;
+$call_ginit_class(Node_abc, Class, 4,
+		 $set(Node_abc, ctor),
+		 $set(Node_abc, dtor),
+		 $set(Node_abc, comp),
+		 $set(Node_abc, getter_x));
