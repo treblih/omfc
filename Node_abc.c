@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  Stream.c
+ *       Filename:  Node_abc.c
  *
  *    Description:  
  *
  *        Version:  1.0
- *        Created:  09.04.10
+ *        Created:  19.03.10
  *       Revision:  
  *       Compiler:  GCC 4.4.3
  *
@@ -15,28 +15,30 @@
  *
  * =====================================================================================
  */
+#define		NODE_ABC_IMPLEMENTATION
 
-#include	<omfc/Stream.h>
-
+#include	<omfc/Node_abc.h>
 
 $dclmethod(OBJ, ctor, $arg(va_list *));
 $dclmethod(void, dtor);
-$dclmethod(int, put, $arg($pri(String) *, ...));
+$dclmethod(int, comp, $arg(OBJ));
+
 static OBJ init(void);
 
 
 /*
  *--------------------------------------------------------------------------------------
  *      Method:  ctor
- *   Parameter:  a const char *, i.e. the file name
- * Description:  if file name == NULL, regard STDOUT as default
- * 		 Stream has a component FILE * stm
+ *   Parameter:  X
+ * Description:  only modify X
  *--------------------------------------------------------------------------------------
  */
-$defmethod(OBJ, ctor, Stream, $arg(va_list * arg))
+$defmethod(OBJ, ctor, Node_abc, $arg(va_list * arg))
 	va_list ap = *arg;
-	STR str = va_arg(ap, STR);
-	me->stm = str ? fopen(str, "r+") : stdout;            /* return char *, not const */
+	T x = va_arg(ap, T);
+	if (x) {
+		me->x = x;
+	}
 	return (OBJ) me;
 }
 
@@ -44,38 +46,40 @@ $defmethod(OBJ, ctor, Stream, $arg(va_list * arg))
  *--------------------------------------------------------------------------------------
  *      Method:  dtor
  *   Parameter:  
- * Description:  close the FILE stream
+ * Description:  <-DESC->
  *--------------------------------------------------------------------------------------
  */
-$defmethod(void, dtor, Stream)
-	printf("a Stream dead\n");
-	if (me->stm) {
-		fclose(me->stm);
-	}
+$defmethod(void, dtor, Node_abc)
+	printf("a Node_abc dead\n");
 }
 
 /*
  *--------------------------------------------------------------------------------------
- *      Method:  put
- *   Parameter:  const char *, the format part;
- *   		 substitution part
- * Description:  put the string and the substitution part(just like ones in printf)
- * 		 into a certain FILE me->stm
+ *      Method:  comp
+ *   Parameter:  anothor node object
+ * Description:  return INT to indicate the result
+ * 		 -1  a <  b
+ * 		 0   a == b
+ * 		 1   a >  b
  *--------------------------------------------------------------------------------------
  */
-$defmethod(int, put, Stream, $arg($pri(String) * format, ...))
-	va_list ap;
-	va_start(ap, format);
-	int n = vfprintf(me->stm, $do(format, getter_str), ap);
-	return n;
+$defmethod(int, comp, Node_abc, $arg(OBJ b))
+	$private(Node_abc) * obj = (PTR) b;
+	if (me->x < obj->x) {
+		return -1;
+	} else if (me->x == obj->x) {
+		return 0;
+	} else {
+		return 1;
+	}
 }
 
 static OBJ init()
 {
-	$call_ginit_class(Stream, Class, 3, 
-			 $set(Stream, ctor),
-			 $set(Stream, dtor),
-			 $set(Stream, put));
+	$call_ginit_class(Node_abc, Class, 3,
+			 $set(Node_abc, ctor),
+			 $set(Node_abc, dtor),
+			 $set(Node_abc, comp));
 }
 
-OBJ Stream = (OBJ) init;
+OBJ Node_abc = (OBJ) init;

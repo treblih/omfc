@@ -21,18 +21,24 @@
 
 #include	<omfc/omfc.h>
 
+#define		BIT_INDEX(n)		((n) >> 5)
+#define		BIT_OFFSET(n)		((n) % 32)
+#define		U32_NEED(n)		(((n) - 1 + 32) >> 5)
+
 $extend(Bitvec,
 	Class,
 	public,
 	void (* set)();
-	void (* unset)();,
+	void (* unset)();
+	PTR (* getter_bitvec)();,                       /* get the addr */
 	private,
-	u32 * bitvec;
+	u32 * bitvec;                                   /* start of bit-vec */
 	);
 
 #define         $Bitvec_interface                       \
-		$Class_interface                        \
+                $Class_interface;                       \
 		void (* set)();                         \
-		void (* unset)()
+		void (* unset)();                       \
+		PTR (* getter_bitvec)()
 
 #endif

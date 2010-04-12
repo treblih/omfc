@@ -24,14 +24,14 @@
 $inheritance(Point,
 	     Class,
 	     public,
-	     void (* draw) ();,
+	     void (* draw)();,
 	     private,
 	     int x;
 	     int y;
 	     );
 
-#define	 	$Point_interface                       \
-		$Class_interface                       \
-	     	void (* draw) ();
+#define         $Point_interface                        \
+		$Class_interface;                       \
+	     	void (* draw)()
 
 #endif

@@ -20,18 +20,18 @@
 #define		STREAM_H
 
 #include	<omfc/omfc.h>
-#include	<omfc/String.h>
+#include	<omfc/String.h>                         /* use, not derive */
 
 $extend(Stream,
 	Class,
 	public,
-	int (* put) ();,
+	int (* put)();,
 	private,
-	FILE * stm;
+	FILE * stm;                                     /* FILE descriptor */
 	);
 
 #define	 	$Stream_interface                       \
-		$Class_interface                        \
-		int (* put) ()
+                $Class_interface;                       \
+		int (* put)()
 
 #endif

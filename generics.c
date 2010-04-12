@@ -3,7 +3,7 @@
  *
  *       Filename:  generics.c
  *
- *    Description:  
+ *    Description:  all global functions for OMFC
  *
  *        Version:  1.0
  *        Created:  31.03.10
@@ -31,26 +31,42 @@ OBJ gnew(OBJ _cls, ...)
 {
 	va_list arg;
 	va_start(arg, _cls);
-	OBJ obj = ginit(galloc(_cls), &arg);
+	OBJ obj = ginit(galloc(_cls), &arg);            /* alloc + init */
 	va_end(arg);
 	return obj;
 } 
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  galloc
+ *  Description:  allocate the space
+ *
+ *  		  if a global class indicator is < gheap ==> 
+ *  		  the class descriptor is not in memory yet, so just a init() pointer
+ *  		  so exe the instructions firstly
+ *  		  then allocate the space guided in the class descriptor -- .size
+ * =====================================================================================
+ */
 OBJ galloc(OBJ _cls)
 {
-	typedef OBJ(*FUNC)();
 	CLS cls;
-
 	if ((PTR)_cls < gheap) {
-		cls = gcast(Class, (*(FUNC)_cls)());
+		cls = gcast(Class, (*(FUNC)_cls)());    /* not exist, init the class */
 	} else {
-		cls = gcast(Class, _cls);
+		cls = gcast(Class, _cls);               /* exist already */
 	}
-	OBJ obj = calloc(1, cls->size);
+	OBJ obj = calloc(1, cls->size);                 /* make it clean */
 	obj->class = (OBJ)cls;
 	return obj;
 }
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  ginit
+ *  Description:  lazy binding, dynamic linkage
+ *  		  call it's corresponding ctor to init the new obj
+ * =====================================================================================
+ */
 OBJ ginit(OBJ _obj, va_list * _arg)
 {
 	CLS cls = gcast(Class, gclass_of(_obj));
@@ -61,14 +77,15 @@ OBJ ginit(OBJ _obj, va_list * _arg)
 /* 
  * ===  FUNCTION  ======================================================================
  *         Name:  delete
- *  Description:  just free. 'cause no need to finit
+ *  Description:  lazy binding, dynamic linkage
+ *  		  call it's corresponding dtor to destruct 
+ *  		  then free the obj
  * =====================================================================================
  */
 void gdelete(OBJ _obj)
 {
 	if (_obj) {
-		/* CLS cls = gcast(Class, gclass_of(_obj)); */
-		$private(Class) * obj = ($private(Class) *) _obj;
+		$pri(Class) * obj = (PTR) _obj;
 		$do(obj, dtor);
 		free(_obj);
 	}
@@ -124,22 +141,43 @@ BOOL gis_of(OBJ _down, OBJ _up)
 	return false;
 }
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  ginit_class
+ *  Description:  wrapped by every init() in every class.c
+ *  		  init the class descriptor
+ * =====================================================================================
+ */
 void ginit_class(OBJ _sub, OBJ _spr, size_t _copy_len, size_t _private_len, int _pair, ...)
 {
-	memcpy(_sub, _spr, _copy_len);
+	/*-----------------------------------------------------------------------------
+	 *  if it's super class indicator != Class(static, always exists so must be < gheap)
+	 *  and also a function pointer, call it to init the super class descriptor
+	 *-----------------------------------------------------------------------------*/
+	if (_spr != Class && (PTR) _spr < gheap) {
+		_spr = (*(FUNC)_spr)();
+	}
 
+	memcpy(_sub, _spr, _copy_len);                  /* steal all */
+
+	/*-----------------------------------------------------------------------------
+	 *  start to change all data copied from super class to it's independences
+	 *-----------------------------------------------------------------------------*/
 	CLS cls = gcast(Class, _sub);
-	cls->size = _private_len;
+	cls->size = _private_len;                       /* private data struct size */
 
 	va_list ap;
-	va_start(ap, _pair);
+	va_start(ap, _pair);                            /* pair is the sentinel, essential */
 	off_t offset;
 	FUNC * ptr;
 
+	/*-----------------------------------------------------------------------------
+	 *  new func addr overlay the copied 
+	 *-----------------------------------------------------------------------------*/
 	for (int i = 0; i < _pair; i += 1) {
 		offset = va_arg(ap, off_t);
-		ptr = (FUNC *)((char *)_sub + offset);
-		*ptr = va_arg(ap, FUNC);
+		ptr = (FUNC *)((char *)_sub + offset);  /* posit */
+		*ptr = va_arg(ap, FUNC);                /* modify */
 	}
 	va_end(ap);
 }

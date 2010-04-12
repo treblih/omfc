@@ -25,11 +25,12 @@ $dclmethod(T, pop);
 
 static OBJ init(void);
 
+
 /*
  *--------------------------------------------------------------------------------------
- *       Class:  point
- *      Method:  point_ctor
- * Description:  
+ *      Method:  ctor
+ *   Parameter:  
+ * Description:  make sure the stack obj is clean
  *--------------------------------------------------------------------------------------
  */
 $defmethod(OBJ, ctor, Stack, $arg(va_list * arg))
@@ -38,17 +39,39 @@ $defmethod(OBJ, ctor, Stack, $arg(va_list * arg))
 	return (OBJ) me;
 }
 
+/*
+ *--------------------------------------------------------------------------------------
+ *      Method:  dtor
+ *   Parameter:  
+ * Description:  <-DESC->
+ *--------------------------------------------------------------------------------------
+ */
 $defmethod(void, dtor, Stack)
 	printf("a Stack dead\n");
 }
 
+/*
+ *--------------------------------------------------------------------------------------
+ *      Method:  push
+ *   Parameter:  X
+ * Description:  implements push of the interface. 
+ * 		 make a node obj holds the X then add at the start
+ *--------------------------------------------------------------------------------------
+ */
 $defmethod(void, push, Stack, $arg(T x))
 	$private(Node) * obj = ($private(Node) *) gnew(Node, x);
-	obj->link = me->head;                                 /* stack_n.link */
-	me->head = (OBJ) obj;                                       /* stack.head */
-	me->cnt++;                                            /* stack.cnt */
+        obj->link = me->head;                           /* stack_n.link */
+        me->head = (OBJ) obj;                           /* stack.head */
+        me->cnt++;                                      /* stack.cnt */
 }
 
+/*
+ *--------------------------------------------------------------------------------------
+ *      Method:  pop
+ *   Parameter:  
+ * Description:  delete the node obj, return the value
+ *--------------------------------------------------------------------------------------
+ */
 $defmethod(T, pop, Stack)
 	$private(Node) * obj = ($private(Node) *) me->head;
 	T x = obj->x;

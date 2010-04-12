@@ -17,16 +17,22 @@
  */
 
 #include	<omfc/omfc.h>
-#include	<omfc/Bitvec.h>
+#include	<omfc/Bintree.h>
 
 int
 main ( int argc, char *argv[] )
 {
-	$pri(Bitvec) * bit = (PTR) gnew(Bitvec, 32);
+	$pri(Bintree) * tree = (PTR) gnew(Bintree);
 
-	$do(bit, set, $arg(1));
-	$do(bit, unset, $arg(1));
+	$do(tree, add, $arg(5));
+	$do(tree, add, $arg(3));
+	$do(tree, add, $arg(11));
+	$do(tree, add, $arg(0));
 
-	gdelete((OBJ)bit);
+	printf("%p\n", $do(tree, search, $arg(11)));
+	printf("%p\n", $do(tree, search, $arg(0)));
+	printf("%p\n", $do(tree, search, $arg(3)));
+	printf("%p\n", $do(tree, search, $arg(5)));
+	gdelete((OBJ) tree);
 	return EXIT_SUCCESS;
 }				/* ----------  end of function main  ---------- */

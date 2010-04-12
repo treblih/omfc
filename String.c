@@ -23,11 +23,13 @@ $dclmethod(void, dtor);
 $dclmethod(STR, getter_str);
 static OBJ init(void);
 
+
 /*
  *--------------------------------------------------------------------------------------
- *       Class:  point
- *      Method:  point_ctor
- * Description:  
+ *      Method:  ctor
+ *   Parameter:  const char *
+ * Description:  strndup helps us to malloc then make a copy to the space
+ * 		 String just needs a component which holds the addr of the malloc'd space
  *--------------------------------------------------------------------------------------
  */
 $defmethod(OBJ, ctor, String, $arg(va_list * arg))
@@ -41,6 +43,13 @@ $defmethod(void, dtor, String)
 	printf("a String dead\n");
 }
 
+/*
+ *--------------------------------------------------------------------------------------
+ *      Method:  getter_str
+ *   Parameter:  
+ * Description:  return the addr, in heap, by strndup
+ *--------------------------------------------------------------------------------------
+ */
 $defmethod(STR, getter_str, String)
 	return me->str;
 }

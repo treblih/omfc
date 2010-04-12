@@ -43,5 +43,4 @@ extern void ginit_class(OBJ, OBJ, size_t, size_t, int, ...);
 extern const OBJ Object;
 extern const OBJ Class;
 
-
 #endif

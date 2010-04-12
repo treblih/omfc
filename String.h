@@ -32,13 +32,13 @@
 $extend(String,
 	Class,
 	public,
-	STR (* getter_str) ();,
+	STR (* getter_str)();,                          /* the string addr */
 	private,
 	char * str;
 	);
 
 #define         $String_interface                       \
-                $Class_interface                        \
-		STR (* getter_str) ();
+                $Class_interface;                       \
+		STR (* getter_str)()
 
 #endif

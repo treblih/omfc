@@ -31,8 +31,9 @@ typedef unsigned	u32;
 
 /* typedef void *		OBJ; */
 typedef struct Object *	OBJ;
-typedef _Bool		BOOL;
+typedef _Bool		BOOL;                           /* stdbool.h */
 
-typedef void *(*FUNC)();
+typedef void            (*HANDLER)();
+typedef void *		(*FUNC)();
 
 #endif

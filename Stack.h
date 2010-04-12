@@ -20,12 +20,12 @@
 #define		STACK_H
 
 #include	<omfc/omfc.h>
-#include	<omfc/Node.h>
+#include        <omfc/Node_abc.h>                       /* use Node_abc */
 
 $extend(Stack,
 	Class,
 	public,
-	$itfce_push_pop;,
+	$itfce_push_pop;,                               /* interface */
 	private,
 	OBJ head;
 	size_t cnt;

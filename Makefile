@@ -19,10 +19,10 @@
 CC	:=	gcc
 CFLAGS	:=	-Wall -std=gnu99 -g
 
-BASE	:=	Class.c  Nil.c  generics.c test.c
+BASE	:=	Class.c  Nil.c  generics.c test.c Bnode.c Node_abc.c
 
 
-STACK	:=	bit
+STACK	:=	bintree
 POINT	:=	Point
 
 .PHONY:	stack point clean
@@ -30,12 +30,12 @@ POINT	:=	Point
 stack:	clean_stack $(STACK) 
 point:	clean_point $(POINT) 
 	
-$(STACK): 	Bitvec.c
+$(STACK): 	Bintree.c
 	$(CC) $(CFLAGS) -o $@ $< $(BASE)
 $(POINT):	Point.c
 	$(CC) $(CFLAGS) -o $@ $< $(BASE)
 
 clean_stack:
-	rem bit
+	rem bintree
 clean_point:
 	rem Point

@@ -3,7 +3,7 @@
  *
  *       Filename:  interface.h
  *
- *    Description:  
+ *    Description:  all interfaces stay here at the moment
  *
  *        Version:  1.0
  *        Created:  08.04.10 13:37
@@ -20,14 +20,14 @@
 #define		INTERFACE_H
 
 #define         $itfce_ctor_dtor                        \
-		OBJ (* ctor) ();                        \
-		void (* dtor) ()
+                OBJ (* ctor)();                         \
+		void (* dtor)()
 
 #define	 	$itfce_getter_setter
 		
 
 #define		$itfce_push_pop                         \
-		void (* push) ();                       \
-		T (* pop) ()
+                void (* push)();                        \
+		T (* pop)()
 
 #endif
