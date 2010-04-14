@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  Stack.h
+ *       Filename:  Hnode.h
  *
  *    Description:  
  *
  *        Version:  1.0
- *        Created:  08.04.10 11:40
+ *        Created:  13.04.10 14:16
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -16,22 +16,20 @@
  * =====================================================================================
  */
 
-#ifndef		STACK_H
-#define		STACK_H
+#ifndef		HNODE_H
+#define		HNODE_H
 
-#include	<omfc/omfc.h>
-#include	<omfc/Node.h>
+#include	<omfc/Bnode.h>
 
-$dclclass(Stack, Class,
+$dclclass(Hnode,
+	Bnode,
 	public,
-	$itfce_push_pop;,                               /* interface */
+	,
 	private,
-	OBJ head;
-	size_t cnt;
+	PTR node;
 	);
 
-#define         $Stack_interface                        \
-		$Class_interface;                       \
-		$itfce_push_pop
+#define		$Hnode_interface                        \
+		$Bnode_interface
 
 #endif

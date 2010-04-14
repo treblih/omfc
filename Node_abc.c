@@ -19,7 +19,10 @@
 
 #include	<omfc/Node_abc.h>
 
-$dclmethod(OBJ, ctor, $arg(va_list *));
+#define		$sub		Node_abc
+#define		$spr		Class
+
+$dclmethod(OBJ, ctor, $arg(va_list));
 $dclmethod(void, dtor);
 $dclmethod(int, comp, $arg(OBJ));
 
@@ -31,7 +34,7 @@ $dclmethod(int, comp, $arg(OBJ));
  * Description:  return the value of component X
  *--------------------------------------------------------------------------------------
  */
-$getter(T, x, Node_abc);                                   /* whatever ';' */
+$getter(T, x);                                          /* whatever ';' */
 
 /*
  *--------------------------------------------------------------------------------------
@@ -40,12 +43,8 @@ $getter(T, x, Node_abc);                                   /* whatever ';' */
  * Description:  only modify X
  *--------------------------------------------------------------------------------------
  */
-$defmethod(OBJ, ctor, Node_abc, $arg(va_list * arg))
-	va_list ap = *arg;
-	T x = va_arg(ap, T);
-	if (x) {
-		me->x = x;
-	}
+$defmethod(OBJ, ctor, Node_abc, $arg(va_list _arg))
+	me->x = va_arg(_arg, T);
 	return (OBJ) me;
 }
 
@@ -71,7 +70,7 @@ $defmethod(void, dtor, Node_abc)
  *--------------------------------------------------------------------------------------
  */
 $defmethod(int, comp, Node_abc, $arg(OBJ b))
-	$private(Node_abc) * obj = (PTR) b;
+	$private(Node_abc) obj = (PTR) b;
 	if (me->x < obj->x) {
 		return -1;
 	} else if (me->x == obj->x) {
@@ -81,8 +80,10 @@ $defmethod(int, comp, Node_abc, $arg(OBJ b))
 	}
 }
 
-$call_ginit_class(Node_abc, Class, 4,
-		 $set(Node_abc, ctor),
-		 $set(Node_abc, dtor),
-		 $set(Node_abc, comp),
-		 $set(Node_abc, getter_x));
+$defclass(Node_abc, Class,
+	4,
+	$write(ctor),
+	$write(dtor),
+	$write(comp),
+	$write(getter_x),
+	0);

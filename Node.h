@@ -26,8 +26,7 @@
 #define	 	T		int
 #endif
 
-$extend(Node,
-	Node_abc,
+$dclclass(Node, Node_abc,
 	public,
 	,                                               /* essential ',' */
 	private,

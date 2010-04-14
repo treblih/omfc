@@ -29,7 +29,7 @@
  *  Description:  can't use char[n] as private, because length is variant
  * =====================================================================================
  */
-$extend(String,
+$dclclass(String,
 	Class,
 	public,
 	STR (* getter_str)();,                          /* the string addr */

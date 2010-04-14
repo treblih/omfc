@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  Node.c
+ *       Filename:  stack.c
  *
  *    Description:  
  *
  *        Version:  1.0
- *        Created:  12.04.10
+ *        Created:  14.04.10
  *       Revision:  
  *       Compiler:  GCC 4.4.3
  *
@@ -16,7 +16,17 @@
  * =====================================================================================
  */
 
-#include	<omfc/Node.h>
+#include	<omfc/Stack.h>
 
-/* essential '0', should let ginit_class() know there's no pair to change */
-$defclass(Node, Node_abc, 0, 0);
+
+#include	<stdlib.h>
+
+	int
+main ( int argc, char *argv[] )
+{
+	$pri(Stack) stk = (PTR) gnew(Stack);
+	$do(stk, push, $arg(5));
+	printf("%d\n", $do(stk, pop));
+
+	return EXIT_SUCCESS;
+}				/* ----------  end of function main  ---------- */

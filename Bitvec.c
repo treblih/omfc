@@ -18,9 +18,10 @@
 
 #include	<omfc/Bitvec.h>
 
-/* an u32 has 32 bits */
+#define		$sub		Bitvec
+#define		$spr		Class
 
-$dclmethod(OBJ, ctor, $arg(va_list *));
+$dclmethod(OBJ, ctor, $arg(va_list));
 $dclmethod(void, dtor);
 $dclmethod(void, set, $arg(u32));
 $dclmethod(void, unset, $arg(u32));
@@ -33,7 +34,7 @@ $dclmethod(void, unset, $arg(u32));
  * Description:  get the addr of the bit vector
  *--------------------------------------------------------------------------------------
  */
-$getter(PTR, bitvec, Bitvec);
+$getter(PTR, bitvec);
 
 /*
  *--------------------------------------------------------------------------------------
@@ -42,9 +43,8 @@ $getter(PTR, bitvec, Bitvec);
  * Description:  calloc an u32-raid holds all the bits need
  *--------------------------------------------------------------------------------------
  */
-$defmethod(OBJ, ctor, Bitvec, $arg(va_list * arg))
-	va_list ap = *arg;
-	u32 len = U32_NEED(va_arg(ap, u32));            /* U32_NEED, can't >> 5 directly */
+$defmethod(OBJ, ctor, Bitvec, $arg(va_list _arg))
+	u32 len = U32_NEED(va_arg(_arg, u32));            /* U32_NEED, can't >> 5 directly */
 	me->bitvec = calloc(1, len);
 	return (OBJ) me;
 }
@@ -84,9 +84,10 @@ $defmethod(void, unset, Bitvec, $arg(u32 index))
 	*ptr &= (0 << BIT_OFFSET(index));
 }
 
-$call_ginit_class(Bitvec, Class, 5,
-		 $set(Bitvec, ctor),
-		 $set(Bitvec, dtor),
-		 $set(Bitvec, set),
-		 $set(Bitvec, unset),
-		 $set(Bitvec, getter_bitvec));
+$defclass(Bitvec, Class, 5,
+	 $write(ctor),
+	 $write(dtor),
+	 $write(set),
+	 $write(unset),
+	 $write(getter_bitvec),
+	 0);

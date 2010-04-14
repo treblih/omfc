@@ -39,7 +39,7 @@
  *-----------------------------------------------------------------------------*/
 
 /* GCC recomends to use the builtin function __builtin_offsetof like this */
-#define		offsetof(type, member)		__builtin_offsetof(type, member)
+#define		offsetof(type, member)	__builtin_offsetof(type, member)
 
 /* a trick, just for the boring ',' */
 #define	 	$arg(...)		, __VA_ARGS__
@@ -55,23 +55,23 @@
  *  could hide all info of a private class except it's meta class pointer
  *  used in general
  *-----------------------------------------------------------------------------*/
-#define	 	$pri(A)				struct private_##A##_interface
+#define	 	$pri(A)			struct private_##A##_interface *
 
 /*-----------------------------------------------------------------------------
  *  provide all info of a certain class, used in some special derived class,
  *  such as List & Stack & Queue should have the privilege to control it's Node
  *  if use getter & setter there, too inefficient
  *-----------------------------------------------------------------------------*/
-#define	 	$private(A)			struct private_##A
+#define	 	$private(A)		struct private_##A *
 
 /*-----------------------------------------------------------------------------
  *  define a method of a class 
  *-----------------------------------------------------------------------------*/
-#define         $defmethod(ret, func, class, ...)       \
+#define         $defmethod(ret, func, cls, ...)              \
 	/* no ';' after _me */                          \
 static ret func(OBJ _me __VA_ARGS__)                    \
 {       /* a class need to manipulate it's components directly, so $private() */ \
-	$private(class) * me = ($private(class) *) _me;
+	$private(cls) me = (PTR) _me;
 
 
 /*-----------------------------------------------------------------------------
@@ -97,13 +97,13 @@ static ret func(OBJ __VA_ARGS__)
  *
  *	and
  *  Sub_interface should be written by yourself explicitly
- *  because the sub classes ought to have the privilege to use
+ *  because the SUB classes ought to have the privilege to use
  *  the method derived from it's super class. so all method in a macro Sub_interface
  *  shoud be wrapped into a non-named structure or no wrapper
  *
  *  finally export the corresponding global class indicator
  *-----------------------------------------------------------------------------*/
-#define	 	$extend(sub, spr, unused1, public, unused2, private) \
+#define	 	$dclclass(sub, spr, unused1, public, unused2, private) \
 struct sub {                                            \
 	/* super methods */                             \
         $##spr##_interface;                             \
@@ -149,51 +149,69 @@ extern OBJ sub                                          /* no ';' */
 
 
 
-#define	 	$class(sub, public, private)            \
-struct sub {                                            \
+#define	 	$class(public, private)            \
+struct SUB {                                            \
 	public                                          \
 };                                                      \
-struct private_##sub {                                  \
-        struct sub * class;                             \
+struct private_##SUB {                                  \
+        struct SUB * class;                             \
 	private                                         \
 };                                                      \
-struct private_##sub##_interface {                      \
-        char private_##sub##_interface[sizeof(struct private_##sub) - 4];     \
+struct private_##SUB##_interface {                      \
+        char private_##SUB##_interface[sizeof(struct private_##SUB) - 4]; \
 };                                                      \
-extern OBJ sub
+extern OBJ SUB
 
 
 /*-----------------------------------------------------------------------------
  *  in the end of every .c for less keystroke and clarify the source
- *  for overwrite the inherited methods
+ *  for overwrite the inherited methods, 
+ *  and also write it's new methods to the class descriptor
  *  see ginit_class() in generics.c
  *-----------------------------------------------------------------------------*/
-#define         $set(cls, func)                         \
-		offsetof(struct cls, func), func
+#define         $write(func)                            \
+		offsetof(struct $sub, func), func
+
+#define		$alias(new, ori)                        \
+		offsetof(struct $sub, new), offsetof(struct $spr, ori)
 
 
 /*-----------------------------------------------------------------------------
  *  in the end of every .c for less keystroke and clarify the source
  *-----------------------------------------------------------------------------*/
-#define         $call_ginit_class(sub, spr, ...)        \
+#define         $defclass(sub, spr, ...)                \
 static OBJ init ()                                      \
 {                                                       \
 	/* sub is global indicator of respective classes.
 	 * change from init() pointer */ 		\
         sub = malloc(sizeof(struct sub));               \
 	/* modify sub -> region, i.e. the class' descriptor */ \
-	ginit_class(sub, spr, sizeof(struct spr), sizeof($private(sub)), __VA_ARGS__); \
+	ginit_class(sub, spr, sizeof(struct spr), sizeof(struct private_##sub), __VA_ARGS__); \
 	/* return the addr, just a copy */              \
 	return (OBJ) sub;                               \
 }                                                       \
 OBJ sub = (OBJ) init      
 
 
-#define		$getter(ret, elem, class)               \
+/* auto getter */
+#define         $getter(ret, elem)                      \
 $dclmethod(ret, getter_##elem);                         \
-$defmethod(ret, getter_##elem, class)                   \
+$defmethod(ret, getter_##elem, $sub)                    \
         return (ret) me->elem;                          \
 }
+
+
+/*-----------------------------------------------------------------------------
+ *  generate a var in the stack
+ *-----------------------------------------------------------------------------*/
+#define         $onstk(_cls, _var, ...)                 \
+struct private_##_cls##_interface (_var);               \
+if ((PTR) (_cls) < gheap) {                             \
+	_cls = (*(FUNC)(_cls))();                       \
+}                                                       \
+(_var).class = (PTR) (_cls);                            \
+gimplicit((OBJ) &(_var) __VA_ARGS__)                    /* init */
+
 
 extern PTR gheap;
 

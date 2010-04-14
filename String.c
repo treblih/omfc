@@ -18,8 +18,10 @@
 
 #include	<omfc/String.h>
 
+#define		$sub		String
+#define		$spr		Class
 
-$dclmethod(OBJ, ctor, $arg(va_list *));
+$dclmethod(OBJ, ctor, $arg(va_list));
 $dclmethod(void, dtor);
 $dclmethod(STR, getter_str);
 
@@ -41,9 +43,8 @@ $getter(STR, str, String)
  * 		 String just needs a component which holds the addr of the malloc'd space
  *--------------------------------------------------------------------------------------
  */
-$defmethod(OBJ, ctor, String, $arg(va_list * arg))
-	va_list ap = *arg;
-	STR str = va_arg(ap, STR);
+$defmethod(OBJ, ctor, String, $arg(va_list _arg))
+	STR str = va_arg(_arg, STR);
         me->str = strndup(str, strlen(str));            /* return char *, not const */
 	return (OBJ) me;
 }
@@ -52,7 +53,8 @@ $defmethod(void, dtor, String)
 	printf("a String dead\n");
 }
 
-$call_ginit_class(String, Class, 3, 
-		 $set(String, ctor),
-		 $set(String, dtor),
-		 $set(String, getter_str));
+$defclass(String, Class, 3, 
+	 $write(ctor),
+	 $write(dtor),
+	 $write(getter_str),
+	 0);

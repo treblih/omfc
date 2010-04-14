@@ -21,11 +21,12 @@
 
 #include	<omfc/omfc.h>
 
+/* an u32 has 32 bits */
 #define		BIT_INDEX(n)		((n) >> 5)
 #define		BIT_OFFSET(n)		((n) % 32)
 #define		U32_NEED(n)		(((n) - 1 + 32) >> 5)
 
-$extend(Bitvec,
+$dclclass(Bitvec,
 	Class,
 	public,
 	void (* set)();

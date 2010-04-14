@@ -22,7 +22,7 @@
 #include	<omfc/omfc.h>
 #include	<omfc/String.h>                         /* use, not derive */
 
-$extend(Stream,
+$dclclass(Stream,
 	Class,
 	public,
 	int (* put)();,

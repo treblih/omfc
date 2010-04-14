@@ -30,7 +30,7 @@
 #define		left		0
 #define		right		1
 
-$extend(Bnode,
+$dclclass(Bnode,
 	Node_abc,
 	public,
 	,                                               /* essential ',' */

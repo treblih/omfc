@@ -18,10 +18,12 @@
 
 #include	<omfc/Stream.h>
 
+#define		$sub		Stream
+#define		$spr		Class
 
-$dclmethod(OBJ, ctor, $arg(va_list *));
+$dclmethod(OBJ, ctor, $arg(va_list));
 $dclmethod(void, dtor);
-$dclmethod(int, put, $arg($pri(String) *, ...));
+$dclmethod(int, put, $arg($pri(String), ...));
 
 
 /*
@@ -32,9 +34,8 @@ $dclmethod(int, put, $arg($pri(String) *, ...));
  * 		 Stream has a component FILE * stm
  *--------------------------------------------------------------------------------------
  */
-$defmethod(OBJ, ctor, Stream, $arg(va_list * arg))
-	va_list ap = *arg;
-	STR str = va_arg(ap, STR);
+$defmethod(OBJ, ctor, Stream, $arg(va_list _arg))
+	STR str = va_arg(_arg, STR);
 	me->stm = str ? fopen(str, "r+") : stdout;            /* return char *, not const */
 	return (OBJ) me;
 }
@@ -62,14 +63,15 @@ $defmethod(void, dtor, Stream)
  * 		 into a certain FILE me->stm
  *--------------------------------------------------------------------------------------
  */
-$defmethod(int, put, Stream, $arg($pri(String) * format, ...))
-	va_list ap;
-	va_start(ap, format);
-	int n = vfprintf(me->stm, $do(format, getter_str), ap);
+$defmethod(int, put, Stream, $arg($pri(String) format, ...))
+	va_list arg;
+	va_start(arg, format);
+	int n = vfprintf(me->stm, $do(format, getter_str), arg);
 	return n;
 }
 
-$call_ginit_class(Stream, Class, 3, 
-		 $set(Stream, ctor),
-		 $set(Stream, dtor),
-		 $set(Stream, put));
+$defclass(Stream, Class, 3, 
+	 $write(ctor),
+	 $write(dtor),
+	 $write(put),
+	 0);

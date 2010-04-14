@@ -31,9 +31,21 @@ OBJ gnew(OBJ _cls, ...)
 {
 	va_list arg;
 	va_start(arg, _cls);
-	OBJ obj = ginit(galloc(_cls), &arg);            /* alloc + init */
+	OBJ obj = ginit(galloc(_cls), arg);            /* alloc + init */
 	va_end(arg);
 	return obj;
+} 
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  vgnew
+ *  Description:  va_list version
+ *  		  like vprintf -- printf; vsprintf -- sprintf
+ * =====================================================================================
+ */
+OBJ vgnew(OBJ _cls, va_list _arg)
+{
+	return ginit(galloc(_cls), _arg);            /* alloc + init */
 } 
 
 /* 
@@ -45,6 +57,8 @@ OBJ gnew(OBJ _cls, ...)
  *  		  the class descriptor is not in memory yet, so just a init() pointer
  *  		  so exe the instructions firstly
  *  		  then allocate the space guided in the class descriptor -- .size
+ *
+ *  		  resign every obj.class to it's meta class
  * =====================================================================================
  */
 OBJ galloc(OBJ _cls)
@@ -56,8 +70,8 @@ OBJ galloc(OBJ _cls)
 		cls = gcast(Class, _cls);               /* exist already */
 	}
 	OBJ obj = calloc(1, cls->size);                 /* make it clean */
-	obj->class = (OBJ)cls;
-	return obj;
+	obj->class = (OBJ)cls;                          /* SIGNIFICANT */
+	return obj;                                     /* return the calloc'd one */
 }
 
 /* 
@@ -65,12 +79,18 @@ OBJ galloc(OBJ _cls)
  *         Name:  ginit
  *  Description:  lazy binding, dynamic linkage
  *  		  call it's corresponding ctor to init the new obj
+ *  		  got the obj which need initialising from galloc()
  * =====================================================================================
  */
-OBJ ginit(OBJ _obj, va_list * _arg)
+OBJ ginit(OBJ _obj, va_list _arg)
 {
 	CLS cls = gcast(Class, gclass_of(_obj));
 	OBJ obj = cls->ctor(_obj, _arg);
+
+	/*-----------------------------------------------------------------------------
+	 *  can't use $do(_obj, ctor, $arg(_arg)); here
+	 *  struct Object has no 'ctor'
+	 *-----------------------------------------------------------------------------*/
 	return obj;
 }
 
@@ -91,7 +111,7 @@ void gdelete(OBJ _obj)
 		 *  private_Class_interface has no component, for the room of next generation
 		 *  so have to use private_Cla
 		 *-----------------------------------------------------------------------------*/
-		$private(Class) * obj = (PTR) _obj;
+		$private(Class) obj = (PTR) _obj;
 		$do(obj, dtor);
 		free(_obj);
 	}
@@ -154,7 +174,7 @@ BOOL gis_of(OBJ _down, OBJ _up)
  *  		  init the class descriptor
  * =====================================================================================
  */
-void ginit_class(OBJ _sub, OBJ _spr, size_t _copy_len, size_t _private_len, int _pair, ...)
+void ginit_class(OBJ _sub, OBJ _spr, size_t _copy_len, size_t _private_len, int _ovwt, ...)
 {
 	/*-----------------------------------------------------------------------------
 	 *  if it's super class indicator != Class(static, always exists so must be < gheap)
@@ -172,18 +192,47 @@ void ginit_class(OBJ _sub, OBJ _spr, size_t _copy_len, size_t _private_len, int 
 	CLS cls = gcast(Class, _sub);
 	cls->size = _private_len;                       /* private data struct size */
 
-	va_list ap;
-	va_start(ap, _pair);                            /* pair is the sentinel, essential */
+	va_list arg;
+        va_start(arg, _ovwt);                           /* pair is the sentinel, essential */
 	off_t offset;
+	PTR sub = (PTR) _sub;
 	FUNC * ptr;
 
 	/*-----------------------------------------------------------------------------
 	 *  new func addr overlay the copied, or init the new one to the class
 	 *-----------------------------------------------------------------------------*/
-	for (int i = 0; i < _pair; i += 1) {
-		offset = va_arg(ap, off_t);
-		ptr = (FUNC *)((char *)_sub + offset);  /* posit */
-		*ptr = va_arg(ap, FUNC);                /* modify */
+	for (int i = 0; i < _ovwt; i += 1) {
+		offset = va_arg(arg, off_t);
+                ptr = (FUNC *) (sub + offset);          /* posit */
+                *ptr = va_arg(arg, FUNC);               /* modify */
 	}
-	va_end(ap);
+
+	/*-----------------------------------------------------------------------------
+	 *  alias, in fact it's a new slot in the class descriptor, and copy the orignal
+	 *  func pointer to there
+	 *-----------------------------------------------------------------------------*/
+	off_t new_off;
+	off_t ori_off;
+	int alias = va_arg(arg, int);
+	assert(alias < 4);
+	for (int i = 0; i < alias; i += 1) {
+		new_off = va_arg(arg, off_t);
+		ori_off = va_arg(arg, off_t);
+		memcpy(sub + new_off, sub + ori_off, sizeof(FUNC));
+	}
+	va_end(arg);
+}
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  gimplicit
+ *  Description:  show only in $onstk()
+ *  		  make ... in a macro to extract to __VA_ARGS__
+ * =====================================================================================
+ */
+OBJ gimplicit(OBJ _obj, ...)
+{
+	va_list ap;
+	va_start(ap, _obj);
+        return ginit(_obj, ap);                         /* no ';' */
 }

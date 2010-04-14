@@ -25,8 +25,7 @@
 #define	 	T		int
 #endif
 
-$extend(Node_abc,
-	Class,
+$dclclass(Node_abc, Class,
 	public,
 	int (* comp)();
 	T (* getter_x)();,

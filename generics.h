@@ -28,8 +28,10 @@
 #endif
 
 extern OBJ gnew(OBJ, ...);
+extern OBJ vgnew(OBJ, va_list);
+
 extern OBJ galloc(OBJ);
-extern OBJ ginit(OBJ, va_list *);
+extern OBJ ginit(OBJ, va_list);
 extern void gdelete(OBJ);
 extern PTR gcast(OBJ, OBJ);
 
@@ -38,6 +40,7 @@ extern size_t gsize_of(OBJ);
 extern STR gname_of(OBJ);
 extern BOOL gis_of(OBJ, OBJ);
 extern void ginit_class(OBJ, OBJ, size_t, size_t, int, ...);
+extern OBJ gimplicit(OBJ, ...);
 
 
 extern const OBJ Object;

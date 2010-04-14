@@ -6,9 +6,6 @@
  *    Description:  obj -- a new Bnode which holds the data X, stable
  *    		    vlt	-- represents "volatile", changable
  *
- *    		    Bnode is basic, use it all over the world except one --
- *    		    vgnew() in add
- *
  *        Version:  1.0
  *        Created:  11.04.10
  *       Revision:  
@@ -22,15 +19,11 @@
 
 #include	<omfc/Bintree.h>
 
-#define		$sub		Bintree
-#define		$spr		Class
-
-$dclmethod(OBJ, ctor, $arg(va_list));
+$dclmethod(OBJ, ctor, $arg(va_list *));
 $dclmethod(void, dtor);
 $dclmethod(OBJ, search, $arg(T));
-$dclmethod(void, add, $arg(OBJ, ...));
+$dclmethod(void, add, $arg(T));
 $dclmethod(OBJ, del, $arg(T));
-$dclmethod(OBJ, extremum, $arg(BOOL));
 
 static void post_order(OBJ, HANDLER);
 
@@ -41,7 +34,7 @@ static void post_order(OBJ, HANDLER);
  * Description:  make sure all data is 0
  *--------------------------------------------------------------------------------------
  */
-$defmethod(OBJ, ctor, Bintree, $arg(va_list _arg))
+$defmethod(OBJ, ctor, Bintree, $arg(va_list * arg))
 	me->head = (OBJ) 0;
 	me->cnt = 0;
 	return (OBJ) me;
@@ -67,14 +60,14 @@ $defmethod(void, dtor, Bintree)
  *--------------------------------------------------------------------------------------
  */
 $defmethod(OBJ, search, Bintree, $arg(T x))
-	$private(Bnode) vlt = (PTR) me->head;
-	$onstk(Bnode, obj, $arg(x));                    /* on stack */
+	$private(Bnode) * vlt = (PTR) me->head;
+	$private(Bnode) * obj = (PTR) gnew(Bnode, x);
 
 	/*-----------------------------------------------------------------------------
 	 *  use Bnode's comp, which derived from class Node
 	 *-----------------------------------------------------------------------------*/
 	while (vlt) {
-		int res = $do(vlt, comp, $arg((OBJ) &obj));
+		int res = $do(vlt, comp, $arg(obj));
 		if (!res) {                             /* equal */
 			return (OBJ) vlt;
 		} else if (res > 0) {                   /* vlt->x > x */
@@ -89,24 +82,13 @@ $defmethod(OBJ, search, Bintree, $arg(T x))
 /*
  *--------------------------------------------------------------------------------------
  *      Method:  add
- *   Parameter:  node_type, corresponding data
+ *   Parameter:  X
  * Description:  make a node obj holds the X then add a new one to the fit position
- *
- * 		 Bnode is the basic node that fits the requestion of a bin-tree
- * 		 all other type derived from Bnode should also be controled by a 
- * 		 bin-tree well, so here when producing a new node, the func need to
- * 		 know the specific type
  *--------------------------------------------------------------------------------------
  */
-$defmethod(void, add, Bintree, $arg(OBJ node_type, ...))
-	va_list arg;
-	va_start(arg, node_type);
-	$private(Bnode) vlt = (PTR) me->head;
-
-	/*-----------------------------------------------------------------------------
-	 *  only interface for different node types
-	 *-----------------------------------------------------------------------------*/
-	$private(Bnode) obj = (PTR) vgnew(node_type, arg);
+$defmethod(void, add, Bintree, $arg(T x))
+	$private(Bnode) * vlt = (PTR) me->head;
+	$private(Bnode) * obj = (PTR) gnew(Bnode, x);
 
 	/* make sure every Bnode is clean, it's calloc'd */
 	while (1) {
@@ -148,9 +130,9 @@ $defmethod(void, add, Bintree, $arg(OBJ node_type, ...))
  */
 $defmethod(OBJ, del, Bintree, $arg(T x))
 	int dir = 0;                                    /* direction */
-	$private(Bnode) vlt = (PTR) me->head;
-	$private(Bnode) obj = (PTR) gnew(Bnode, x);   /* removing one */
-	$private(Bnode) prt = obj;                    /* parent */
+	$private(Bnode) * vlt = (PTR) me->head;
+	$private(Bnode) * obj = (PTR) gnew(Bnode, x);   /* removing one */
+	$private(Bnode) * prt = obj;                    /* parent */
 
 	/*-----------------------------------------------------------------------------
 	 *  1st, locate the removing one and it's parent
@@ -182,7 +164,7 @@ $defmethod(OBJ, del, Bintree, $arg(T x))
 	 *  now, vlt is the removing one
 	 *  chl is vlt's right-child
 	 *-----------------------------------------------------------------------------*/
-	$private(Bnode) chl = (PTR) vlt->link[right];
+	$private(Bnode) * chl = (PTR) vlt->link[right];
 	if (!chl) {                                     /* no right-child, easiest */
 		prt->link[dir] = vlt->link[left];
 
@@ -191,8 +173,8 @@ $defmethod(OBJ, del, Bintree, $arg(T x))
 		prt->link[dir] = (PTR) chl;
 
 	} else if (chl && chl->link[left]) {            /* right-child has left-child */
-		$private(Bnode) leftmost = (PTR) chl->link[left];
-		$private(Bnode) prev;
+		$private(Bnode) * leftmost = (PTR) chl->link[left];
+		$private(Bnode) * prev;
 		while (leftmost->link[left]) {
 			prev = leftmost;
 			leftmost = (PTR) leftmost->link[left];
@@ -204,24 +186,7 @@ $defmethod(OBJ, del, Bintree, $arg(T x))
 	}
 	
 	me->cnt--;
-	/* no need to gdelete((OBJ) obj), see the func desc */
 	return (OBJ) obj;
-}
-
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  extremum
- *  Description:  find the smallest / largest
- *  		  ex -- 0 -- smallest -- left
- *  		        1 -- largest  -- right
- * =====================================================================================
- */
-$defmethod(OBJ, extremum, Bintree, $arg(BOOL ex))
-	$private(Bnode) vlt = (PTR) me->head;
-	while (vlt->link[ex]) {
-		vlt = (PTR) vlt->link[ex];
-	}
-	return (OBJ) vlt;
 }
 
 /* 
@@ -235,18 +200,16 @@ $defmethod(OBJ, extremum, Bintree, $arg(BOOL ex))
 static void post_order(OBJ _me, HANDLER do_what)
 {
         if (_me) {                                      /* significant judge */
-		$private(Bnode) me = (PTR) _me;
+		$private(Bnode) * me = (PTR) _me;
 		post_order(me->link[left], do_what);    /* recursive */
 		post_order(me->link[right], do_what);
 		do_what(_me);                          
 	}
 }
 
-$defclass(Bintree, Class, 6,
-	 $write(ctor),
-	 $write(dtor),
-	 $write(search),
-	 $write(add),
-	 $write(del),
-	 $write(extremum),
-	 0);
+$call_ginit_class(Bintree, Class, 5,
+		 $set(Bintree, ctor),
+		 $set(Bintree, dtor),
+		 $set(Bintree, search),
+		 $set(Bintree, add),
+		 $set(Bintree, del));

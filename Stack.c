@@ -18,7 +18,10 @@
 
 #include	<omfc/Stack.h>
 
-$dclmethod(OBJ, ctor, $arg(va_list *));
+#define		$sub		Stack
+#define		$spr		Class
+
+$dclmethod(OBJ, ctor, $arg(va_list));
 $dclmethod(void, dtor);
 $dclmethod(void, push, $arg(T));
 $dclmethod(T, pop);
@@ -31,7 +34,7 @@ $dclmethod(T, pop);
  * Description:  make sure the stack obj is clean
  *--------------------------------------------------------------------------------------
  */
-$defmethod(OBJ, ctor, Stack, $arg(va_list * arg))
+$defmethod(OBJ, ctor, Stack, $arg(va_list _arg))
 	me->head = (OBJ) 0;
 	me->cnt = 0;
 	return (OBJ) me;
@@ -57,7 +60,7 @@ $defmethod(void, dtor, Stack)
  *--------------------------------------------------------------------------------------
  */
 $defmethod(void, push, Stack, $arg(T x))
-	$private(Node) * obj = (PTR) gnew(Node, x);
+	$private(Node) obj = (PTR) gnew(Node, x);
         obj->link = me->head;                           /* stack_n.link */
         me->head = (OBJ) obj;                           /* stack.head */
         me->cnt++;                                      /* stack.cnt */
@@ -71,7 +74,7 @@ $defmethod(void, push, Stack, $arg(T x))
  *--------------------------------------------------------------------------------------
  */
 $defmethod(T, pop, Stack)
-	$private(Node) * obj = (PTR) me->head;
+	$private(Node) obj = (PTR) me->head;
 	T x = $do(obj, getter_x);
         me->head = obj->link;                           /* stack.head */
         me->cnt--;                                      /* stack.cnt */
@@ -79,8 +82,10 @@ $defmethod(T, pop, Stack)
 	return x;
 }
 
-$call_ginit_class(Stack, Class, 4, 
-		 $set(Stack, ctor),
-		 $set(Stack, dtor),
-		 $set(Stack, push),
-		 $set(Stack, pop));
+$defclass(Stack, Class,
+	4, 
+	$write(ctor),
+	$write(dtor),
+	$write(push),
+	$write(pop),
+	0);

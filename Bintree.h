@@ -22,12 +22,20 @@
 #include	<omfc/omfc.h>
 #include	<omfc/Bnode.h>                          /* use Bnode */
 
-$extend(Bintree,
-	Class,
+/*-----------------------------------------------------------------------------
+ *  for extremum()
+ *  smallest -- 0 -- left
+ *  largest  -- 1 -- right
+ *-----------------------------------------------------------------------------*/
+#define		SMALLEST		0
+#define		LARGEST			1
+
+$dclclass(Bintree, Class,
 	public,
 	OBJ (* search)();
 	void (* add)();
-	OBJ (* del)();,                                 /* essential ',' */
+	OBJ (* del)();
+        OBJ (* extremum)();,                            /* essential ',' */
 	private,
 	OBJ head;                                       /* to the root Bnode */
 	size_t cnt;
@@ -37,6 +45,7 @@ $extend(Bintree,
                 $Class_interface;                       \
                 OBJ (* search)();                       \
 		void (* add)();                         \
-		OBJ (* del)()
+		OBJ (* del)();                          \
+                OBJ (* extremum)()                      /* essential ',' */
 
 #endif
