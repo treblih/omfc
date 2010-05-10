@@ -28,7 +28,8 @@
 $dclclass(Node_abc, Class,
 	public,
 	int (* comp)();
-	T (* getter_x)();,
+	T (* getter_x)();
+	void (* setter_x)();,
 	private,
 	T x;
 	);
@@ -36,6 +37,7 @@ $dclclass(Node_abc, Class,
 #define         $Node_abc_interface                     \
                 $Class_interface;                       \
                 int (* comp)();                         \
-		T (* getter_x)()
+		T (* getter_x)();                       \
+		void (* setter_x)()
 
 #endif

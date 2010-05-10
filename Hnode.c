@@ -22,6 +22,8 @@
 
 $dclmethod(OBJ, ctor, $arg(va_list));
 
+$getter(PTR, node);
+
 $defmethod(OBJ, ctor, Hnode, $arg(va_list _arg))
 	size_t size = (size_t) va_arg(_arg, T);
 	PTR node = va_arg(_arg, PTR);
@@ -37,6 +39,7 @@ $defmethod(OBJ, ctor, Hnode, $arg(va_list _arg))
 	return (OBJ) me;
 }
 
-$defclass(Hnode, Bnode, 1, 
+$defclass(Hnode, Bnode, 2, 
 	$write(ctor),
+	$write(getter_node),
 	0);

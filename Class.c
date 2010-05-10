@@ -46,6 +46,8 @@ PTR gheap;                                              /* global judge */
 __attribute__ ((__constructor__)) void gget_heap()
 {
 	gheap = sbrk(0);
+	/* static gheap = sbrk(0); */
+	/* return gheap; */
 }
 
 /* 

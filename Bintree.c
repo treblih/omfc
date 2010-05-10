@@ -29,10 +29,21 @@ $dclmethod(OBJ, ctor, $arg(va_list));
 $dclmethod(void, dtor);
 $dclmethod(OBJ, search, $arg(T));
 $dclmethod(void, add, $arg(OBJ, ...));
-$dclmethod(OBJ, del, $arg(T));
+$dclmethod(PTR, del, $arg(T));
 $dclmethod(OBJ, extremum, $arg(BOOL));
+$dclmethod(OBJ, first_fit, $arg(T));
 
-static void post_order(OBJ, HANDLER);
+static void post_order(OBJ, NORET);
+
+
+/*
+ *--------------------------------------------------------------------------------------
+ *      Method:  getter_cnt
+ *   Parameter:  
+ * Description:  tree node count
+ *--------------------------------------------------------------------------------------
+ */
+$getter(size_t, cnt);
 
 /*
  *--------------------------------------------------------------------------------------
@@ -104,16 +115,16 @@ $defmethod(void, add, Bintree, $arg(OBJ node_type, ...))
 	$private(Bnode) vlt = (PTR) me->head;
 
 	/*-----------------------------------------------------------------------------
-	 *  only interface for different node types
+	 *  only one interface for different node types
 	 *-----------------------------------------------------------------------------*/
 	$private(Bnode) obj = (PTR) vgnew(node_type, arg);
 
 	/* make sure every Bnode is clean, it's calloc'd */
+        if (!vlt) {                                     /* is the tree empty? */
+		me->head = (PTR) obj;
+		goto end;
+	}
 	while (1) {
-		if (!vlt) {                             /* is the tree empty? */
-			me->head = (PTR) obj;
-			break;
-		}
 		int res = $do(vlt, comp, $arg(obj));
 		if (res > 0) {                          /* vlt->x > x */
 			if (vlt->link[left]) {
@@ -131,6 +142,7 @@ $defmethod(void, add, Bintree, $arg(OBJ node_type, ...))
 			}
 		}
 	}
+end:
 	me->cnt++;                                      /* don't forget this */
 }
 
@@ -144,13 +156,20 @@ $defmethod(void, add, Bintree, $arg(OBJ node_type, ...))
  * 		 so u could do like this:
  *
  * 		 gdelete($do(bin_tree, del, $arg(X)));
+ * 		 
+ * 		 VLT WANTED !!
  *--------------------------------------------------------------------------------------
  */
-$defmethod(OBJ, del, Bintree, $arg(T x))
+$defmethod(PTR, del, Bintree, $arg(T x))
 	int dir = 0;                                    /* direction */
 	$private(Bnode) vlt = (PTR) me->head;
-	$private(Bnode) obj = (PTR) gnew(Bnode, x);   /* removing one */
-	$private(Bnode) prt = obj;                    /* parent */
+	/*-----------------------------------------------------------------------------
+	 *  during the control-flow below, prt will be vlt's parent
+	 *  but now init it with vlt
+	 *  so if just 1 node in the tree, treat it specially
+	 *-----------------------------------------------------------------------------*/
+        $private(Bnode) prt = vlt;                    
+        $private(Bnode) obj = (PTR) gnew(Bnode, x);     /* removing one */
 
 	/*-----------------------------------------------------------------------------
 	 *  1st, locate the removing one and it's parent
@@ -174,7 +193,15 @@ $defmethod(OBJ, del, Bintree, $arg(T x))
 	 *  2nd, check the reason why jump out of the "while"
 	 *-----------------------------------------------------------------------------*/
 	if (!vlt) {                                      /* namely, not found */
-		return (OBJ) 0;
+		return NULL;
+	}
+
+	/*-----------------------------------------------------------------------------
+	 *  prt == vlt ==> deleting root node
+	 *-----------------------------------------------------------------------------*/
+	BOOL del_root;
+	if (prt == vlt) {
+		del_root = true;
 	}
 
 	/*-----------------------------------------------------------------------------
@@ -184,11 +211,13 @@ $defmethod(OBJ, del, Bintree, $arg(T x))
 	 *-----------------------------------------------------------------------------*/
 	$private(Bnode) chl = (PTR) vlt->link[right];
 	if (!chl) {                                     /* no right-child, easiest */
-		prt->link[dir] = vlt->link[left];
+		del_root ? (me->head 	   = vlt->link[left]):
+			   (prt->link[dir] = vlt->link[left]);
 
 	} else if (chl && (!chl->link[left])) {         /* right-child has no left-child */
 		chl->link[left] = vlt->link[left];
-		prt->link[dir] = (PTR) chl;
+		del_root ? (me->head 	   = (PTR) chl):
+			   (prt->link[dir] = (PTR) chl);
 
 	} else if (chl && chl->link[left]) {            /* right-child has left-child */
 		$private(Bnode) leftmost = (PTR) chl->link[left];
@@ -200,26 +229,44 @@ $defmethod(OBJ, del, Bintree, $arg(T x))
 		prev->link[left] = leftmost->link[right]; /* able to be NULL */
 		leftmost->link[left] = vlt->link[left];   /* able to be NULL */
 		leftmost->link[right] = (PTR) chl;
-		prt->link[dir] = (PTR) leftmost;
+		del_root ? (me->head 	   = (PTR) leftmost):
+			   (prt->link[dir] = (PTR) leftmost);
 	}
 	
 	me->cnt--;
-	/* no need to gdelete((OBJ) obj), see the func desc */
-	return (OBJ) obj;
+	/* T x = $do(vlt, getter_x); */
+	gdelete((OBJ) vlt);
+	/* return x; */
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  extremum
+/*
+ *--------------------------------------------------------------------------------------
+ *      Method:  extremum
+ *   Parameter:  
  *  Description:  find the smallest / largest
  *  		  ex -- 0 -- smallest -- left
  *  		        1 -- largest  -- right
- * =====================================================================================
+ *--------------------------------------------------------------------------------------
  */
 $defmethod(OBJ, extremum, Bintree, $arg(BOOL ex))
 	$private(Bnode) vlt = (PTR) me->head;
 	while (vlt->link[ex]) {
 		vlt = (PTR) vlt->link[ex];
+	}
+	return (OBJ) vlt;
+}
+
+/*
+ *--------------------------------------------------------------------------------------
+ *      Method:  first_fit
+ *   Parameter:  
+ * Description:  find the 1st which could contain the X, i.e. 1st >= X
+ *--------------------------------------------------------------------------------------
+ */
+$defmethod(OBJ, first_fit, Bintree, $arg(T x))
+	$private(Bnode) vlt = (PTR) me->head;
+	while (x >= $do(vlt, getter_x)) {
+		vlt = (PTR) vlt->link[right];           /* impossible left */
 	}
 	return (OBJ) vlt;
 }
@@ -232,7 +279,7 @@ $defmethod(OBJ, extremum, Bintree, $arg(BOOL ex))
  *  		  should be wrapped
  * =====================================================================================
  */
-static void post_order(OBJ _me, HANDLER do_what)
+static void post_order(OBJ _me, NORET do_what)
 {
         if (_me) {                                      /* significant judge */
 		$private(Bnode) me = (PTR) _me;
@@ -242,11 +289,13 @@ static void post_order(OBJ _me, HANDLER do_what)
 	}
 }
 
-$defclass(Bintree, Class, 6,
+$defclass(Bintree, Class, 8,
 	 $write(ctor),
 	 $write(dtor),
 	 $write(search),
 	 $write(add),
 	 $write(del),
 	 $write(extremum),
+	 $write(first_fit),
+	 $write(getter_cnt),
 	 0);

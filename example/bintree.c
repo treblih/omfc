@@ -37,7 +37,7 @@ main ( int argc, char *argv[] )
 	$do(tree, add, $arg(Hnode, 11, 0x9048000));
 	$do(tree, add, $arg(Hnode, 10, 0x9048000));
 
-	printf("small %d\n", $do(($pri(Bnode))$do(tree, extremum, $arg(LARGEST)), getter_x));
+	printf("small %d\n", $do(($pri(Bnode))$do(tree, first_fit, $arg(2)), getter_x));
 //	printf("%p\n", $do(tree, search, $arg(11)));
 //	printf("%p\n", $do(tree, search, $arg(0)));
 //	printf("%p\n", $do(tree, search, $arg(3)));
@@ -47,4 +47,3 @@ main ( int argc, char *argv[] )
 	gdelete((OBJ) tree);
 	return EXIT_SUCCESS;
 }				/* ----------  end of function main  ---------- */
-/* obj eeb8 */

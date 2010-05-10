@@ -24,7 +24,9 @@
 
 $dclclass(Stack, Class,
 	public,
-	$itfce_push_pop;,                               /* interface */
+        $itfce_push_pop;                                /* interface */
+	PTR (* getter_head)();
+	size_t (* getter_cnt)();,
 	private,
 	OBJ head;
 	size_t cnt;
@@ -32,6 +34,8 @@ $dclclass(Stack, Class,
 
 #define         $Stack_interface                        \
 		$Class_interface;                       \
-		$itfce_push_pop
+		$itfce_push_pop;                        \
+                PTR (* getter_head)();                  \
+		size_t (* getter_cnt)()
 
 #endif

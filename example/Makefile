@@ -17,7 +17,7 @@
 
 #### Start of system configuration section. ####
 CC	:=	gcc
-CFLAGS	:=	-std=gnu99 -g -rdynamic
+CFLAGS	:=	-std=gnu99 -g -lomfc
 
 BASE	:=	Class.c  Nil.c  generics.c
 
@@ -26,8 +26,9 @@ STACK	:=	stack
 STREAM	:=	stream
 BINTREE	:=	bintree
 POINT	:=	Point
+LIST	:=	list
 
-.PHONY:	stack point clean stream bitvec btree
+.PHONY:	stack point clean stream bitvec btree list
 
 stack:	clean_stack $(STACK) 
 stream:	clean_stream $(STREAM) 
@@ -42,6 +43,8 @@ $(STREAM): 	stream.c
 	$(CC) $(CFLAGS) -o $@ $< $(BASE) Stack.c String.c Stream.c Node_abc.c Node.c
 $(POINT):	Point.c
 	$(CC) $(CFLAGS) -o $@ $< $(BASE)
+$(LIST):	list.c
+	$(CC) $(CFLAGS) -o $@ $< $(BASE) Stack.c Node_abc.c Node.c List.c
 
 clean_stack:
 	rem stack
@@ -51,3 +54,5 @@ clean_point:
 	rem Point
 clean_bintree:
 	rem bintree
+clean_list:
+	rem list

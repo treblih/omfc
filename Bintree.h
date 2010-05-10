@@ -34,8 +34,10 @@ $dclclass(Bintree, Class,
 	public,
 	OBJ (* search)();
 	void (* add)();
-	OBJ (* del)();
-        OBJ (* extremum)();,                            /* essential ',' */
+	PTR (* del)();
+        OBJ (* extremum)();
+        OBJ (* first_fit)();
+	size_t (* getter_cnt)();,
 	private,
 	OBJ head;                                       /* to the root Bnode */
 	size_t cnt;
@@ -45,7 +47,9 @@ $dclclass(Bintree, Class,
                 $Class_interface;                       \
                 OBJ (* search)();                       \
 		void (* add)();                         \
-		OBJ (* del)();                          \
-                OBJ (* extremum)()                      /* essential ',' */
+                PTR (* del)();                          \
+                OBJ (* extremum)();                     \
+        	OBJ (* first_fit)();                    \
+		size_t (* getter_cnt)()
 
 #endif

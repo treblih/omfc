@@ -214,7 +214,7 @@ void ginit_class(OBJ _sub, OBJ _spr, size_t _copy_len, size_t _private_len, int 
 	off_t new_off;
 	off_t ori_off;
 	int alias = va_arg(arg, int);
-	assert(alias < 4);
+	/* assert(alias < 10); */
 	for (int i = 0; i < alias; i += 1) {
 		new_off = va_arg(arg, off_t);
 		ori_off = va_arg(arg, off_t);

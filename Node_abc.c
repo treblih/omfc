@@ -35,6 +35,7 @@ $dclmethod(int, comp, $arg(OBJ));
  *--------------------------------------------------------------------------------------
  */
 $getter(T, x);                                          /* whatever ';' */
+$setter(T, x);                                          /* whatever ';' */
 
 /*
  *--------------------------------------------------------------------------------------
@@ -81,9 +82,10 @@ $defmethod(int, comp, Node_abc, $arg(OBJ b))
 }
 
 $defclass(Node_abc, Class,
-	4,
+	5,
 	$write(ctor),
 	$write(dtor),
 	$write(comp),
 	$write(getter_x),
+	$write(setter_x),
 	0);

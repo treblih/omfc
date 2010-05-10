@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  test.c
+ *       Filename:  list.c
  *
  *    Description:  
  *
  *        Version:  1.0
- *        Created:  02.04.10
+ *        Created:  15.04.10
  *       Revision:  
  *       Compiler:  GCC 4.4.3
  *
@@ -17,22 +17,20 @@
  */
 
 #include	<omfc/omfc.h>
-#include	<omfc/Bintree.h>
+#include	<omfc/List.h>
+
 
 int
 main ( int argc, char *argv[] )
 {
-	$pri(Bintree) * tree = (PTR) gnew(Bintree);
+	$pri(List) list = (PTR) gnew(List);
+	$do(list, add, $arg(2));
+	$do(list, add, $arg(6));
+	$do(list, add, $arg(61));
+	/* $do(list, rem); */
 
-	$do(tree, add, $arg(5));
-	$do(tree, add, $arg(3));
-	$do(tree, add, $arg(11));
-	$do(tree, add, $arg(0));
-
-	printf("%p\n", $do(tree, search, $arg(11)));
-	printf("%p\n", $do(tree, search, $arg(0)));
-	printf("%p\n", $do(tree, search, $arg(3)));
-	printf("%p\n", $do(tree, search, $arg(5)));
-	gdelete((OBJ) tree);
+	T x = $do(($pri(Node))$do(list, find_first_nonnull), getter_x);
+	
+	printf("%d\n", x);
 	return EXIT_SUCCESS;
 }				/* ----------  end of function main  ---------- */

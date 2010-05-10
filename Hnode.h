@@ -21,15 +21,15 @@
 
 #include	<omfc/Bnode.h>
 
-$dclclass(Hnode,
-	Bnode,
+$dclclass(Hnode, Bnode,
 	public,
-	,
+	PTR (* getter_node)();,
 	private,
 	PTR node;
 	);
 
 #define		$Hnode_interface                        \
-		$Bnode_interface
+                $Bnode_interface;                       \
+		PTR (* getter_node)()
 
 #endif

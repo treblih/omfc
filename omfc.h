@@ -67,7 +67,7 @@
 /*-----------------------------------------------------------------------------
  *  define a method of a class 
  *-----------------------------------------------------------------------------*/
-#define         $defmethod(ret, func, cls, ...)              \
+#define         $defmethod(ret, func, cls, ...)         \
 	/* no ';' after _me */                          \
 static ret func(OBJ _me __VA_ARGS__)                    \
 {       /* a class need to manipulate it's components directly, so $private() */ \
@@ -83,15 +83,12 @@ static ret func(OBJ __VA_ARGS__)
 
 
 /*-----------------------------------------------------------------------------
- *  keyword 'extend' like the correspoing one in Java
- *
  *  unused1 -- public
  *  unused2 -- private		just 4 clarity when extending
  *
- *  an 'entend' will generates 3 structure:
+ *  an 'dclclass' will generates 3 structure:
  *
  *  Sub				meta class, holds method pointer
- *  
  *  private_Sub			private data
  *  private_Sub_interface	private part interface for inheritance
  *
@@ -198,6 +195,13 @@ OBJ sub = (OBJ) init
 $dclmethod(ret, getter_##elem);                         \
 $defmethod(ret, getter_##elem, $sub)                    \
         return (ret) me->elem;                          \
+}
+
+/* auto setter */
+#define         $setter(type, elem)                     \
+$dclmethod(void, setter_##elem, $arg(type));            \
+$defmethod(void, setter_##elem, $sub, $arg(type arg))   \
+        me->elem = arg;                                 \
 }
 
 

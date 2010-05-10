@@ -27,6 +27,9 @@ $dclmethod(void, push, $arg(T));
 $dclmethod(T, pop);
 
 
+$getter(PTR, head);
+$getter(size_t, cnt);
+
 /*
  *--------------------------------------------------------------------------------------
  *      Method:  ctor
@@ -83,9 +86,11 @@ $defmethod(T, pop, Stack)
 }
 
 $defclass(Stack, Class,
-	4, 
+	6, 
 	$write(ctor),
 	$write(dtor),
 	$write(push),
 	$write(pop),
+	$write(getter_head),
+	$write(getter_cnt),
 	0);
