@@ -10,43 +10,13 @@
  *       Revision:  
  *       Compiler:  GCC 4.4.3
  *
- *         Author:  Yang Zhang, imyeyeslove@gmail.com
+ *         Author:  Yang Zhang, treblih.divad@gmail.com
  *        Company:  
  *
  * =====================================================================================
  */
-
 #define		GENERICS_IMPLEMENTATION
 #include	<omfc/omfc.h>
-
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  new
- *  Description:  new == calloc(allocate space in heap) + ctor(init)
- *
- *  		  must be a class pointer
- * =====================================================================================
- */
-OBJ gnew(OBJ _cls, ...)
-{
-	va_list arg;
-	va_start(arg, _cls);
-	OBJ obj = ginit(galloc(_cls), arg);            /* alloc + init */
-	va_end(arg);
-	return obj;
-} 
-
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  vgnew
- *  Description:  va_list version
- *  		  like vprintf -- printf; vsprintf -- sprintf
- * =====================================================================================
- */
-OBJ vgnew(OBJ _cls, va_list _arg)
-{
-	return ginit(galloc(_cls), _arg);            /* alloc + init */
-} 
 
 /* 
  * ===  FUNCTION  ======================================================================
@@ -63,12 +33,7 @@ OBJ vgnew(OBJ _cls, va_list _arg)
  */
 OBJ galloc(OBJ _cls)
 {
-	CLS cls;
-	if ((PTR)_cls < gheap) {
-		cls = gcast(Class, (*(FUNC)_cls)());    /* not exist, init the class */
-	} else {
-		cls = gcast(Class, _cls);               /* exist already */
-	}
+        CLS cls = gcast(Class, _cls);     
 	OBJ obj = calloc(1, cls->size);                 /* make it clean */
 	obj->class = (OBJ)cls;                          /* SIGNIFICANT */
 	return obj;                                     /* return the calloc'd one */
@@ -82,7 +47,22 @@ OBJ galloc(OBJ _cls)
  *  		  got the obj which need initialising from galloc()
  * =====================================================================================
  */
-OBJ ginit(OBJ _obj, va_list _arg)
+OBJ ginit(OBJ _obj, ...)
+{
+	va_list arg;
+	va_start(arg, _obj);
+	CLS cls = gcast(Class, gclass_of(_obj));
+	OBJ obj = cls->ctor(_obj, arg);
+	va_end(arg);
+
+	/*-----------------------------------------------------------------------------
+	 *  can't use $do(_obj, ctor, $arg(_arg)); here
+	 *  struct Object has no 'ctor'
+	 *-----------------------------------------------------------------------------*/
+	return obj;
+}
+
+OBJ vginit(OBJ _obj, va_list _arg)
 {
 	CLS cls = gcast(Class, gclass_of(_obj));
 	OBJ obj = cls->ctor(_obj, _arg);
@@ -109,7 +89,7 @@ void gdelete(OBJ _obj)
 		/*-----------------------------------------------------------------------------
 		 *  can't be $pri(Class)
 		 *  private_Class_interface has no component, for the room of next generation
-		 *  so have to use private_Cla
+		 *  see generics.h
 		 *-----------------------------------------------------------------------------*/
 		$private(Class) obj = (PTR) _obj;
 		$do(obj, dtor);
@@ -117,24 +97,6 @@ void gdelete(OBJ _obj)
 	}
 }
 
-PTR gcast(OBJ _down, OBJ _up)  
-{
-	assert(!gis_of(_down, _up));
-	return (PTR) _up;
-}
-
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  gclass_of
- *  Description:  class of a given object
- *
- *  		  the only thing that one object always have is a pointer to it's class
- * =====================================================================================
- */
-OBJ gclass_of(OBJ _obj)
-{
-	return _obj->class;
-}
 
 /* 
  * ===  FUNCTION  ======================================================================
@@ -144,6 +106,7 @@ OBJ gclass_of(OBJ _obj)
  *  		  the object
  * =====================================================================================
  */
+#if 0
 size_t gsize_of(OBJ _obj)
 {
 	CLS cls = gcast(Class, gclass_of(_obj));
@@ -166,6 +129,7 @@ BOOL gis_of(OBJ _down, OBJ _up)
 	}
 	return false;
 }
+#endif
 
 /* 
  * ===  FUNCTION  ======================================================================
@@ -176,14 +140,6 @@ BOOL gis_of(OBJ _down, OBJ _up)
  */
 void ginit_class(OBJ _sub, OBJ _spr, size_t _copy_len, size_t _private_len, int _ovwt, ...)
 {
-	/*-----------------------------------------------------------------------------
-	 *  if it's super class indicator != Class(static, always exists so must be < gheap)
-	 *  and also a function pointer, call it to init the super class descriptor
-	 *-----------------------------------------------------------------------------*/
-	if (_spr != Class && (PTR) _spr < gheap) {
-		_spr = (*(FUNC)_spr)();
-	}
-
 	memcpy(_sub, _spr, _copy_len);                  /* steal all */
 
 	/*-----------------------------------------------------------------------------

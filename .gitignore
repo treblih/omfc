@@ -1,0 +1,7 @@
+cscope*
+tags
+*.c~
+*.o
+*.a
+example/
+a.out

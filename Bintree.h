@@ -10,7 +10,7 @@
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  Yang Zhang (), imyeyeslove@gmail.com
+ *         Author:  Yang Zhang (), treblih.divad@gmail.com
  *        Company:  
  *
  * =====================================================================================

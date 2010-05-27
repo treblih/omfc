@@ -10,7 +10,7 @@
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  Yang Zhang (), imyeyeslove@gmail.com
+ *         Author:  Yang Zhang (), treblih.divad@gmail.com
  *        Company:  
  *
  * =====================================================================================
@@ -21,14 +21,14 @@
 
 #include	<omfc/omfc.h>
 
-$inheritance(Point,
-	     Class,
-	     public,
-	     void (* draw)();,
-	     private,
-	     int x;
-	     int y;
-	     );
+$dclclass(Point,
+	Class,
+	public,
+	void (* draw)();,
+	private,
+	int x;
+	int y;
+	);
 
 #define         $Point_interface                        \
 		$Class_interface;                       \

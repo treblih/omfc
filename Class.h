@@ -10,16 +10,16 @@
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  Yang Zhang (), imyeyeslove@gmail.com
+ *         Author:  Yang Zhang, treblih.divad@gmail.com
  *        Company:  
  *
  * =====================================================================================
  */
 
+/* no need to include omfc.h, because included by omfc.h */
+
 #ifndef		CLASS_H
 #define		CLASS_H
-
-#include	<omfc/Nil.h>
 
 /*-----------------------------------------------------------------------------
  *  Class structre. visible, base one
@@ -28,7 +28,8 @@ typedef struct Class {
 	struct Object _;                                /* only be visited by a OBJ pointer */
 	PTR ptr;                                        /* no use for this moment */
 	size_t size;                                    /* private data size */
-	$itfce_ctor_dtor;                               /* interfaces, ctor & dtor */
+	OBJ (* ctor)();                       
+	void (* dtor)();
 } * CLS;                                                /* quick reference */
 
 /*-----------------------------------------------------------------------------
@@ -48,7 +49,8 @@ struct private_Class {
  *-----------------------------------------------------------------------------*/
 #define         $Class_interface                        \
 		char Class_interface[12];               \
-		$itfce_ctor_dtor
+		OBJ (* ctor)();                         \
+		void (* dtor)()
 
 /*-----------------------------------------------------------------------------
  *  static initialization, 'cause it's Class, the basic one
@@ -56,5 +58,7 @@ struct private_Class {
  *  but it's volatile, so no space occupied for next generation
  *-----------------------------------------------------------------------------*/
 struct private_Class_interface {};
+
+extern OBJ Class();
 
 #endif

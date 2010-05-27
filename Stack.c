@@ -18,17 +18,19 @@
 
 #include	<omfc/Stack.h>
 
+#undef		$sub
+#undef		$spr
 #define		$sub		Stack
 #define		$spr		Class
 
-$dclmethod(OBJ, ctor, $arg(va_list));
+$dclmethod(OBJ, ctor, va_list);
 $dclmethod(void, dtor);
-$dclmethod(void, push, $arg(T));
+$dclmethod(void, push, T);
 $dclmethod(T, pop);
 
 
-$getter(PTR, head);
-$getter(size_t, cnt);
+$get(PTR, head);
+$get(size_t, cnt);
 
 /*
  *--------------------------------------------------------------------------------------
@@ -37,7 +39,7 @@ $getter(size_t, cnt);
  * Description:  make sure the stack obj is clean
  *--------------------------------------------------------------------------------------
  */
-$defmethod(OBJ, ctor, Stack, $arg(va_list _arg))
+$defmethod(OBJ, ctor, Stack, va_list _arg)
 	me->head = (OBJ) 0;
 	me->cnt = 0;
 	return (OBJ) me;
@@ -62,7 +64,7 @@ $defmethod(void, dtor, Stack)
  * 		 make a node obj holds the X then add at the start
  *--------------------------------------------------------------------------------------
  */
-$defmethod(void, push, Stack, $arg(T x))
+$defmethod(void, push, Stack, T x)
 	$private(Node) obj = (PTR) gnew(Node, x);
         obj->link = me->head;                           /* stack_n.link */
         me->head = (OBJ) obj;                           /* stack.head */
@@ -78,7 +80,7 @@ $defmethod(void, push, Stack, $arg(T x))
  */
 $defmethod(T, pop, Stack)
 	$private(Node) obj = (PTR) me->head;
-	T x = $do(obj, getter_x);
+	T x = $do(obj, get_x);
         me->head = obj->link;                           /* stack.head */
         me->cnt--;                                      /* stack.cnt */
 	gdelete((OBJ)obj);                              /* release the node */
@@ -91,6 +93,23 @@ $defclass(Stack, Class,
 	$write(dtor),
 	$write(push),
 	$write(pop),
-	$write(getter_head),
-	$write(getter_cnt),
+	$write(get_head),
+	$write(get_cnt),
 	0);
+
+Stack()
+{
+	static is_exist;
+	static class_addr;
+
+	if (!is_exist) {
+		/* sub is global indicator of respective classes.
+		 * change from init() pointer */ 		
+		struct Stack * stk = malloc(sizeof(struct Stack));               
+		/* modify sub -> region, i.e. the class' descriptor */ 
+		ginit_class(Stack, Class, sizeof(struct spr), sizeof(struct private_##sub), ##__VA_ARGS__); 
+		/* return the addr, just a copy */              
+		return (OBJ) sub;                               
+	}
+	return class_addr;
+}
