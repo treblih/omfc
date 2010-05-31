@@ -66,11 +66,11 @@
 /*-----------------------------------------------------------------------------
  *  define a method of a class 
  *-----------------------------------------------------------------------------*/
-#define         $defmethod(ret, func, cls, ...)         \
+#define         $defmethod(ret, func, ...)         \
 	/* no ';' after _me */                          \
-static ret func(OBJ _me, ##__VA_ARGS__)                 \
+static inline ret func(OBJ _me, ##__VA_ARGS__)                 \
 {       /* a class need to manipulate it's components directly, so $private() */ \
-	$private(cls) me = (PTR) _me;                   /* ';' */
+	struct $private_sub * me = (PTR) _me;                   /* ';' */
 
 
 /*-----------------------------------------------------------------------------
@@ -78,7 +78,7 @@ static ret func(OBJ _me, ##__VA_ARGS__)                 \
  *-----------------------------------------------------------------------------*/
 #define         $dclmethod(ret, func, ...)         \
 		/* no ';' */                 		\
-static ret func(OBJ, ##__VA_ARGS__)
+static inline ret func(OBJ, ##__VA_ARGS__)
 
 
 /*-----------------------------------------------------------------------------
@@ -88,11 +88,11 @@ static ret func(OBJ, ##__VA_ARGS__)
  *  an '$dclclass' will generates 3 structures:
  *
  *  sub				meta class, holds method pointer
- *  privatesub			private data
- *  privatesubinterface	private part interface for inheritance
+ *  private_sub			private data
+ *  private_sub_interface	private part interface for inheritance
  *
  *	and
- *  subinterface should be written by yourself explicitly
+ *  sub_interface should be written by yourself explicitly
  *  because the SUB classes ought to have the privilege to use
  *  the method derived from it's super class. so all method in a macro subinterface
  *  shoud be wrapped into a non-named structure or no wrapper
@@ -119,22 +119,22 @@ struct private_##sub {                                  \
 struct private_##sub##_interface {                      \
 	struct sub * class;                             \
 	/*------------------------------------------------------------------ \
-	 *  struct privatesub {
+	 *  struct private_sub {
 	 *  	 struct sub * class;
 	 *  	 struct private_spr_interface _;
 	 *  };
 	 *
-	 *  ==> sizeof(privatesub) == 4 + sizeof(private_spr_interface)
+	 *  ==> sizeof(private_sub) == 4 + sizeof(private_spr_interface)
 	 *
-	 *  the whole privatesubinterface shoud be 4 bytes less than
-	 *  privatesub, because must make space for a differen
+	 *  the whole private_sub_interface shoud be 4 bytes less than
+	 *  private_sub, because must make space for a differen
 	 *  struct sub * class; for next generation
 	 *  and in general we use --
 	 *
 	 *  $pri(Car) * car = (PTR) gnew(Car);
 	 *  $do(car, run);
 	 *
-	 *  so in privatesubinterface we should remain a way to use 
+	 *  so in private_sub_interface we should remain a way to use 
 	 *  it's method that's why this struc also has a 'struc sub * class;'
 	 *
 	 *  u know why it's '-8', not '-4'
@@ -175,7 +175,7 @@ extern OBJ SUB
 /*-----------------------------------------------------------------------------
  *  in the end of every .c for less keystroke and clarify the source
  *-----------------------------------------------------------------------------*/
-#define         $defclass(sub, ...)                \
+#define         $defclass(...)                \
 OBJ $sub()                                      \
 {                                                       \
 	static PTR sub_addr;                              \
@@ -185,9 +185,10 @@ OBJ $sub()                                      \
 		sub_addr = malloc(sizeof(struct $sub));               \
 		/* modify sub -> region, i.e. the class' descriptor */ \
 		PTR spr_addr = $spr();                      \
-		ginit_class(sub_addr, spr_addr, sizeof(struct $spr), sizeof(struct private_##sub), ##__VA_ARGS__); \
-		/* return the addr, just a copy */              \
+		ginit_class(sub_addr, spr_addr, sizeof(struct $spr), \
+			    sizeof(struct $private_sub), ##__VA_ARGS__); \
 	}                                               \
+	/* return the addr, just a copy */              \
         return sub_addr;                              \
 }
 
@@ -195,14 +196,14 @@ OBJ $sub()                                      \
 /* auto get */
 #define         $get(ret, elem)                      \
 $dclmethod(ret, get_##elem);                         \
-$defmethod(ret, get_##elem, $sub)                    \
+$defmethod(ret, get_##elem)                    \
         return (ret) me->elem;                          \
 }
 
 /* auto set */
 #define         $set(type, elem)                     \
 $dclmethod(void, set_##elem, $arg(type));            \
-$defmethod(void, set_##elem, $sub, $arg(type arg))   \
+$defmethod(void, set_##elem, $arg(type arg))   \
         me->elem = arg;                                 \
 }
 
